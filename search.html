@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="농작물 백과사전전">
+    <meta property="og:description" content="알고싶은 농작물을 검색해보세요.">
+    <meta property="og:image" content="">
+    <title>농작물 검색사이트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Search for Data</h1>
+    <input type="text" id="searchInput" placeholder="Enter search term">
+    <button onclick="search()">Search</button>
+
+    <script>
+        function search() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (searchTerm) {
+                // 검색어를 URL 매개변수로 전달
+                window.location.href = `results.html?query=${encodeURIComponent(searchTerm)}`;
+            } else {
+                alert('Please enter a search term.');
+            }
+        }
+    </script>
+</body>
+</html>

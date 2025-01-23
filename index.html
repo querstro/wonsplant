@@ -67,14 +67,39 @@
             align-items: center;
             text-decoration: none;
         }
+        .bigs {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 0px;
+            gap: 10px;
+        }
+        .bigs > a {
+            width: 300px;
+            background-color: white;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-decoration: none;
+            padding: 20px 16px 16px 16px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
     <div id="body">
         <h1 class="noto-serif-kr">식물과 함께하는 삶</h1>
+    <div class="bigs">
+            <a class="bigbutton" href="https://querstro.github.io/srchpage/" target="_blank">식물검색
+                <style>.size{font-size: 11pt; font-style: normal;}</style><div class="size">틈날 때마다 정보를 업로드 합니다.</div>
+            </a>
+            <a class="bigbutton" href="" target="_blank">오늘의 식물
+                <style>.size{font-size: 11pt; font-style: normal;}</style><div class="size">& 커뮤니티</div>
+            </a>
+        </div>
     </div>
-    <a class="bigbutton" href="https://querstro.github.io/srchpage/" target="_blank">식물검색</a>
-    <a class="bigbutton" href="https://plantsearch.imweb.me/" target="_blank">오늘의식물/커뮤니티</a>
     <div class="joan-regular">.</br>Email: wonsplant@gmail.com</div>
 </body>
 </html>

@@ -1,1 +1,1 @@
-'강릉오목이'!url(https://raw.githubusercontent.com/querstro/wonsplant/refs/heads/wonsplant.site/%EA%B0%95%EB%A6%89%EC%98%A4%EB%AA%A9%EC%9D%B4.jpg);
+![강릉오목이](https://github.com/user-attachments/assets/0f862a94-e2b7-41eb-8fa6-bd246560a1ff)

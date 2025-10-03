@@ -81,29 +81,22 @@
 
     <script>
         // 검색 버튼을 누르면 실행되는 함수 (예시: performSearch)
-
-function performSearch() {
-    console.log("A. performSearch 함수 시작!"); // <-- 1. 이 메시지가 뜨는지 확인
-
-    const searchTerm = document.getElementById('searchInput').value;
-    console.log("B. 추출된 검색어:", searchTerm); // <-- 2. 여기에 실제 입력한 값이 뜨는지 확인
-
-    if (searchTerm) {
-        const encodedTerm = encodeURIComponent(searchTerm);
-        
-        console.log("C. 이동할 URL:", `/search-plants/result-plants/?query=${encodedTerm}`); // <-- 3. 이 메시지가 뜨는지 확인
-
-        // 이 라인이 실행되어야 페이지가 이동합니다.
-        window.location.href = `/search-plants/result-plants/?query=${encodedTerm}`;
-    } else {
-        console.log("D. 검색어가 입력되지 않음");
-        alert("검색어를 입력해 주세요.");
+    function performSearch() {
+        const searchTerm = document.getElementById('searchInput').value;
+        if (searchTerm) {
+            const encodedTerm = encodeURIComponent(searchTerm);
+            // 이 라인이 실행되어야 페이지가 이동합니다.
+            window.location.href = `/search-plants/result-plants/?query=${encodedTerm}`;
+        } else {
+            console.log("D. 검색어가 입력되지 않음");
+            alert("검색어를 입력해 주세요.");
+        }
     }
-}
 
     </script>
 </body>
 </html>
+
 
 
 

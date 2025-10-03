@@ -105,11 +105,9 @@
                 // URL에서 검색어 추출
                 const urlParams = new URLSearchParams(window.location.search);
                 const query = urlParams.get('query')?.toLowerCase();
-
-                console.log("1. 추출된 검색어(query):", query); // <--- 이 값이 '강낭콩'인지 확인하세요.
-    
+                
                 if (!query) {
-                    // ... (여기로 빠지면 안 됩니다.)
+                    document.getElementById('resultsContainer').innerHTML = '<p class="no-results">No search term provided.</p>';
                     return;
                 }
 
@@ -128,6 +126,10 @@
                 });
                 const headers = rows[0];
                 const dataRows = rows.slice(1);
+                // 2. 파싱된 데이터 구조 확인
+                console.log("2. 데이터 헤더:", headers); // 헤더(컬럼 이름)가 잘 나뉘었는지 확인
+                console.log("3. 첫 번째 데이터 행:", dataRows[0]); // 첫 번째 데이터 행이 배열로 잘 나뉘었는지 확인
+
 
                 // 검색 결과 필터링
                 const filteredRows = dataRows.filter(row => 
@@ -179,6 +181,7 @@
     
 </body>
 </html>
+
 
 
 

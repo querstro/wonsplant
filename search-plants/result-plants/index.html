@@ -106,8 +106,10 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const query = urlParams.get('query')?.toLowerCase();
 
+                console.log("1. 추출된 검색어(query):", query); // <--- 이 값이 '강낭콩'인지 확인하세요.
+    
                 if (!query) {
-                    document.getElementById('resultsContainer').innerHTML = '<p class="no-results">No search term provided.</p>';
+                    // ... (여기로 빠지면 안 됩니다.)
                     return;
                 }
 
@@ -177,6 +179,7 @@
     
 </body>
 </html>
+
 
 
 

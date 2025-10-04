@@ -91,6 +91,46 @@
         .back-link a:hover {
             text-decoration: underline;
         }
+        
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 40px;
+        }
+
+        .result-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #1f5f3c;
+            border-bottom: 2px solid #c8e6c9;
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            margin-top: 20px;
+            color: #1f5f3c;
+        }
+
+        p {
+            margin-left: 10px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #777;
+        }
     </style>
 </head>
 <body>
@@ -125,10 +165,7 @@
                     return parts;
                 });
                 const headers = rows[0];
-                const dataRows = rows.slice(1);
-                // 2. 파싱된 데이터 구조 확인
-                console.log("2. 데이터 헤더:", headers); // 헤더(컬럼 이름)가 잘 나뉘었는지 확인
-                console.log("3. 첫 번째 데이터 행:", dataRows[0]); // 첫 번째 데이터 행이 배열로 잘 나뉘었는지 확인
+                const dataRows = rows.slice(1);                
 
 
                 // 검색 결과 필터링
@@ -136,51 +173,54 @@
                     row.some(cell => cell.toLowerCase().includes(query))
                 );
 
-                // 결과 표시
+                <!-- 결과 표시 -->
                 if (filteredRows.length === 0) {
-                    document.getElementById('resultsContainer').innerHTML = '<p class="no-results">No results found.</p>';
-                    return;
+                document.getElementById('resultsContainer').innerHTML = '<p class="no-results">No results found.</p>';
+                return;
                 }
-                
 
-                const table = document.createElement('table');
+                // ✅ 기존 table 생성 코드 전부 삭제하고 아래 코드로 교체
+                const resultsContainer = document.getElementById('resultsContainer');
+                resultsContainer.innerHTML = ''; // 초기화
 
-                // 테이블 헤더 생성
-                const thead = document.createElement('thead');
-                const headerRow = document.createElement('tr');
-                headers.forEach(header => {
-                    const th = document.createElement('th');
-                    th.textContent = header.trim();
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
-
-                // 테이블 본문 생성
-                const tbody = document.createElement('tbody');
+                // 제목별로 묶기 (1열 기준)
+                const grouped = {};
                 filteredRows.forEach(row => {
-                    const tr = document.createElement('tr');
-                    row.forEach(cell => {
-                        const td = document.createElement('td');
-                        td.textContent = cell.trim();
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
+                const [title, subtitle, content] = row;
+                if (!grouped[title]) grouped[title] = [];
+                grouped[title].push({ subtitle, content });
                 });
-                table.appendChild(tbody);
 
-                document.getElementById('resultsContainer').appendChild(table);
-            } catch (error) {
-                console.error('Error loading CSV:', error);
-                document.getElementById('resultsContainer').innerHTML = '<p class="no-results">Error loading data.</p>';
+                // 각 그룹별 HTML 생성
+                for (const [title, items] of Object.entries(grouped)) {
+                const section = document.createElement('div');
+                section.className = 'result-section';
+                section.innerHTML = `<h2>${title}</h2>`;
+
+                items.forEach(item => {
+                    section.innerHTML += `
+                    <div class="sub-block">
+                        <h3>${item.subtitle}</h3>
+                        <p>${item.content}</p>
+                    </div>
+                    `;
+                });
+
+                resultsContainer.appendChild(section);
+                }
             }
-        }
-
+             catch (error) {
+                console.error('Error loading CSV:', error);
+                document.getElementById('resultsContainer').innerHTML =
+                '<p class="no-results">Error loading data.</p>';
+            }
+        } 
         loadCSV();
     </script>
     
 </body>
 </html>
+
 
 
 

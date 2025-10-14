@@ -45,32 +45,6 @@
             
         }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #f4f4f4;
-            color: #333;
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
         .no-results {
             text-align: center;
             color: #888;
@@ -134,6 +108,8 @@
         }
         /* --- 결과 표시를 카드(섹션) 형태로 변경하기 위한 CSS 추가 --- */
 
+        
+
         .result-section h2 {
             /* 주 제목 (예: 식물 이름) */
             color: #1f5f3c;
@@ -196,7 +172,7 @@
     </div>
     <script>
         // 검색 결과를 담을 전역 변수
-            let fullDataSet = [];
+        let fullDataSet = [];
             
             // ----------------------------------------------------------------------
             // 1. CSV 파일을 불러오고 PapaParse로 파싱하는 재사용 함수
@@ -330,6 +306,7 @@
     
 </body>
 </html>
+
 
 
 

@@ -6,6 +6,7 @@
     <meta property="og:title" content="검색결과페이지">
     <meta property="og:description" content="식물검색 결과 페이지">
     <meta property="og:image" content=url('image.jpg')>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <title>Search Results</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Joan&family=Noto+Serif+KR:wght@200..900&display=swap');
@@ -131,6 +132,60 @@
             text-align: center;
             color: #777;
         }
+        /* --- 결과 표시를 카드(섹션) 형태로 변경하기 위한 CSS 추가 --- */
+
+        .result-section h2 {
+            /* 주 제목 (예: 식물 이름) */
+            color: #1f5f3c;
+            border-bottom: 2px solid #c8e6c9;
+            padding-bottom: 5px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .data-item {
+            /* 부제목과 내용 묶음 */
+            display: flex;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .data-item-label {
+            /* 부제목 (열 이름) 스타일 */
+            font-weight: bold;
+            color: #4CAF50; /* 라벨 색상 */
+            width: 80px; /* 라벨 너비 고정 */
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .data-item-value {
+            /* 내용 (데이터 값) 스타일 */
+            color: #333;
+            flex-grow: 1;
+        }
+        .data-item {
+            /* 기존 스타일 유지 (display: flex;) */
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        /* [수정] 값 컨테이너가 전체 너비를 차지하도록 설정 */
+        .data-item-value.full-width {
+            width: 100%;
+            flex-grow: 1; /* flex-grow: 1;은 이미 data-item-value에 적용되어 있어야 함 */
+            /* 기존 CSS에서 data-item-label이 차지하던 공간을 이제 data-item-value가 활용합니다. */
+        }
+
+        /* --- 홀수열의 내용을 굵게 표시하는 스타일 추가 --- */
+        .data-item-value.bold-item {
+            font-weight: bold;
+        }
+        
+        .bold-item {
+        font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -140,86 +195,142 @@
         <a href="https://wonsplant.site/search-plants">← Back to Search</a>
     </div>
     <script>
+        // 검색 결과를 담을 전역 변수
+            let fullDataSet = [];
+            
+            // ----------------------------------------------------------------------
+            // 1. CSV 파일을 불러오고 PapaParse로 파싱하는 재사용 함수
+            // ----------------------------------------------------------------------
+            // ----------------------------------------------------------------------
+        // 1. CSV 파일을 불러오고 PapaParse로 파싱하는 재사용 함수 (변경 없음)
+        // ----------------------------------------------------------------------
+        function loadAndParseCSV(filePath) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(filePath, {
+                    download: true,       // 네트워크에서 파일 다운로드
+                    header: true,         // <--- PapaParse가 첫 행을 객체의 키(열 이름)로 사용하고 데이터에서는 제외
+                    skipEmptyLines: true, 
+                    complete: function(results) {
+                        resolve(results.data);
+                    },
+                    error: function(error) {
+                        reject(error);
+                    }
+                });
+            });
+        }
+        
+        // ----------------------------------------------------------------------
+        // 2. 통합 로드 및 검색 실행 함수 (결과 표시 로직만 수정)
+        // ----------------------------------------------------------------------
         async function loadCSV() {
+            // URL에서 검색어 추출
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('query')?.toLowerCase();
+            const resultsContainer = document.getElementById('resultsContainer');
+        
+            if (!query) {
+                resultsContainer.innerHTML = '<p class="no-results">No search term provided.</p>';
+                return;
+            }
+        
             try {
-                // URL에서 검색어 추출
-                const urlParams = new URLSearchParams(window.location.search);
-                const query = urlParams.get('query')?.toLowerCase();
+                const FILE_A = 'csvFile.csv';     // 예: 3열짜리 파일
+                const FILE_B = 'csvFile1.csv';    // 예: 12열짜리 파일
                 
-                if (!query) {
-                    document.getElementById('resultsContainer').innerHTML = '<p class="no-results">No search term provided.</p>';
+                // 두 파일을 병렬로 로드 및 파싱합니다.
+                const [dataA, dataB] = await Promise.all([
+                    loadAndParseCSV(FILE_A),
+                    loadAndParseCSV(FILE_B)
+                ]);
+        
+                // 데이터 통합
+                const fullDataSet = dataA.concat(dataB);
+        
+                // 검색 실행
+                const filteredRows = fullDataSet.filter(row => {
+                    return Object.values(row).some(cellValue => 
+                        cellValue && String(cellValue).toLowerCase().includes(query)
+                    );
+                });
+        
+                // ----------------------------------------------------
+                // 3. 결과 표시 (개별 카드 형태로 변경)
+                // ----------------------------------------------------
+                if (filteredRows.length === 0) {
+                    resultsContainer.innerHTML = '<p class="no-results">No results found.</p>';
                     return;
                 }
-
-                // CSV 파일 로드
-                const response = await fetch('csvFile.csv');
-                const csvText = await response.text();
-
-                // CSV 파싱
-                const rows = csvText.split('\n').map(row =>{
-                    const parts= row.split(',');
-                    if (parts.length>3){
-                        //처음 두 항목은 그대로, 나머지는 결합
-                        return[parts[0],parts[1],parts.slice(2).join(',')];
-                    }
-                    return parts;
-                });
-                const headers = rows[0];
-                const dataRows = rows.slice(1);                
-
-
-                // 검색 결과 필터링
-                const filteredRows = dataRows.filter(row => 
-                    row.some(cell => cell.toLowerCase().includes(query))
-                );
-
-                <!-- 결과 표시 -->
-                if (filteredRows.length === 0) {
-                document.getElementById('resultsContainer').innerHTML = '<p class="no-results">No results found.</p>';
-                return;
-                }
-
-                // ✅ 기존 table 생성 코드 전부 삭제하고 아래 코드로 교체
-                const resultsContainer = document.getElementById('resultsContainer');
+                
                 resultsContainer.innerHTML = ''; // 초기화
-
-                // 제목별로 묶기 (1열 기준)
-                const grouped = {};
-                filteredRows.forEach(row => {
-                const [title, subtitle, content] = row;
-                if (!grouped[title]) grouped[title] = [];
-                grouped[title].push({ subtitle, content });
-                });
-
-                // 각 그룹별 HTML 생성
-                for (const [title, items] of Object.entries(grouped)) {
-                const section = document.createElement('div');
-                section.className = 'result-section';
-                section.innerHTML = `<h2>${title}</h2>`;
-
-                items.forEach(item => {
-                    section.innerHTML += `
-                    <div class="sub-block">
-                        <h3>${item.subtitle}</h3>
-                        <p>${item.content}</p>
-                    </div>
-                    `;
-                });
-
-                resultsContainer.appendChild(section);
+                
+                // 모든 열 이름 추출 (표시할 항목 결정)
+                // 기존:
+                let allColumns = new Set();
+                fullDataSet.forEach(row => {
+                Object.keys(row).forEach(col => allColumns.add(col));
+                });        
+                // 수정:
+                const headers = Array.from(allColumns); // 첫 번째 행의 열 순서 사용
+                // 첫 번째 열을 주 제목(Title)으로 사용한다고 가정
+                const primaryHeader = headers.length > 0 ? headers[0] : null;
+        
+                if (!primaryHeader) {
+                    resultsContainer.innerHTML = '<p class="no-results">데이터에 유효한 열 이름이 없습니다.</p>';
+                    return;
                 }
-            }
-             catch (error) {
-                console.error('Error loading CSV:', error);
-                document.getElementById('resultsContainer').innerHTML =
-                '<p class="no-results">Error loading data.</p>';
+        
+                // 각 검색 결과 행에 대해 개별 카드(result-section) 생성
+                filteredRows.forEach(row => {
+                    // 1. 카드(섹션) 생성
+                    const section = document.createElement('div');
+                    section.className = 'result-section';
+        
+                    // 2. 주 제목 (첫 번째 열 값) 설정
+                    // PapaParse가 이미 헤더를 제외했으므로, row[primaryHeader]는 데이터 값입니다.
+                    const titleValue = row[primaryHeader] || '제목 없음';
+                    section.innerHTML = `<h2>${titleValue}</h2>`;
+        
+                    // 3. 나머지 상세 정보 (다른 열들) 추가
+                    const detailHTML = headers
+                    .map((header, index) => {
+                        const value = (row[header] ?? '').trim();
+                        if(value==='')return'';
+        
+                        if (value) {
+                        // 홀수열(1,3,5,...) — index는 0부터 시작하므로 index % 2 === 0
+                        const isOddColumn = index % 2 === 1;
+                        const boldClass = isOddColumn ? 'bold-item' : '';
+        
+                        return `
+                            <div class="data-item">
+                                <div class="data-item-value ${boldClass}">${value}</div>
+                            </div>
+                        `;
+                        }
+                        return '';
+                    })
+                    .join('');
+                    // 4. 상세 정보를 섹션에 추가
+                    section.innerHTML += detailHTML;
+        
+                    // 5. 컨테이너에 카드 추가
+                    resultsContainer.appendChild(section);
+                });
+        
+            } catch (error) {
+                console.error('Error loading or processing data:', error);
+                resultsContainer.innerHTML = '<p class="no-results">Error loading data. Check console for details.</p>';
             }
         } 
+        
         loadCSV();
+              
     </script>
     
 </body>
 </html>
+
 
 
 
